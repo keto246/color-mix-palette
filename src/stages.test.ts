@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { boardMatchesTarget, createGame, place } from './game'
 import { getStages, TOTAL_STAGES } from './stages'
 
 describe('ステージ生成', () => {
@@ -38,5 +39,20 @@ describe('ステージ生成', () => {
     expect(stages[10].rows * stages[10].cols).toBeLessThanOrEqual(
       stages[30].rows * stages[30].cols
     )
+  })
+
+  it('解答手順を初期状態に適用すると目標に到達する（全ステージ）', () => {
+    for (const s of stages) {
+      const g = createGame(s)
+      // 解答の各 step は (cellIndex, color)。手持ちから同じ色を取り出してそのセルに置く
+      for (const step of s.solution) {
+        const handIdx = g.hand.indexOf(step.color)
+        expect(handIdx, `stage ${s.id}: 手持ちに ${step.color} がない`).toBeGreaterThanOrEqual(0)
+        const ok = place(g, handIdx, step.cellIndex)
+        expect(ok, `stage ${s.id}: ${step.color} を ${step.cellIndex} に置けない`).toBe(true)
+      }
+      expect(boardMatchesTarget(g), `stage ${s.id}: 解答実行後に target と一致しない`).toBe(true)
+      expect(g.status, `stage ${s.id}: 解答実行後の status`).toBe('cleared')
+    }
   })
 })

@@ -11,6 +11,9 @@ import { Cell, createGame, place, StageConfig, StageGimmicks } from './game'
 export interface StageMeta extends StageConfig {
   title: string
   hint: string
+  // 生成器が見つけた解答手順（テスト・デバッグ用）。
+  // 手持ち動作 i 回目で「hand[?] = color を cellIndex に置く」べきセル位置。
+  solution: { cellIndex: number; color: ColorName }[]
 }
 
 interface GenParams {
@@ -80,6 +83,7 @@ function generate(p: GenParams): StageMeta {
 
     const handPlaced: ColorName[] = []
     const fixedInit: { index: number; color: ColorName }[] = []
+    const solution: { cellIndex: number; color: ColorName }[] = []
     let placements = 0
     let tries = 0
 
@@ -104,7 +108,8 @@ function generate(p: GenParams): StageMeta {
       place(probe, 0, i)
       if (hasBrown(probe.cells)) continue
 
-      // 本番に反映
+      // 本番に反映（差分を取れるよう before スナップショットも取る）
+      const before = builder.cells.map((c) => c.color)
       builder.moves = 0
       builder.status = 'playing'
       builder.hand.push(prim)
@@ -115,9 +120,17 @@ function generate(p: GenParams): StageMeta {
       }
 
       if (placements < p.fixed) {
-        fixedInit.push({ index: i, color: prim })
+        // 固定タイルとして登録するのは「この置き手で変化したセル全部」。
+        // 鏡や滲みの複製先も固定にしないと、プレイヤー側ではそのセルを
+        // 元の色で埋める手段が無くなり target に到達できない（mirror+fixed 等）。
+        for (let idx = 0; idx < builder.cells.length; idx++) {
+          if (builder.cells[idx].color !== before[idx]) {
+            fixedInit.push({ index: idx, color: builder.cells[idx].color })
+          }
+        }
       } else {
         handPlaced.push(prim)
+        solution.push({ cellIndex: i, color: prim })
       }
       placements++
     }
@@ -145,6 +158,7 @@ function generate(p: GenParams): StageMeta {
       timedTurns,
       title: p.title,
       hint: p.hint,
+      solution,
     }
   }
 
@@ -160,6 +174,7 @@ function generate(p: GenParams): StageMeta {
     starThresholds: [1, 2],
     title: p.title,
     hint: p.hint,
+    solution: [{ cellIndex: 0, color: 'red' }],
   }
 }
 
