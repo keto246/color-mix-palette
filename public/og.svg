@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1a1a2e"/>
+  <g transform="translate(120,180)">
+    <circle cx="70" cy="80" r="70" fill="#e53e3e"/>
+    <circle cx="170" cy="80" r="70" fill="#d69e2e"/>
+    <circle cx="120" cy="170" r="70" fill="#3182ce"/>
+    <circle cx="270" cy="80" r="70" fill="#ed8936"/>
+    <circle cx="370" cy="80" r="70" fill="#38a169"/>
+    <circle cx="320" cy="170" r="70" fill="#805ad5"/>
+  </g>
+  <text x="120" y="500" font-family="Segoe UI, sans-serif" font-size="84" font-weight="700" fill="#ffffff">色まぜパレット</text>
+  <text x="120" y="565" font-family="Segoe UI, sans-serif" font-size="36" fill="#9aa">混色ロジックパズル</text>
+</svg>
